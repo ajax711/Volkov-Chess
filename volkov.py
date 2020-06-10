@@ -1,6 +1,13 @@
 import chess
 import chess.polyglot
-game = chess.Board('r1bq1rk1/pppp1ppp/1bn2n2/8/2BPP3/5N2/PP3PPP/RNBQ1RK1 w - - 1 8')
+
+try:
+    fen=str(input("Enter FEN of the position :"))
+    game = chess.Board(fen)
+
+except:
+        print ("INVALID FEN")
+        quit()
 
 
 def material(game):
@@ -29,14 +36,6 @@ def brain():
         return 0
     else:
         return material(game)
-
-def whose_move():
-    k=str(input("Whose move ('W'/'B')"))
-
-    if k.lower()=='w':
-        whitemove = True
-    else:
-        whitemove = False
 
 def minimax(depth, alpha, beta, whitemove): #minmax with alpha-beta pruning
     if depth == 0 or game.is_checkmate() or game.is_stalemate():
@@ -67,6 +66,38 @@ def minimax(depth, alpha, beta, whitemove): #minmax with alpha-beta pruning
         return minEval
  
 
+def play(depth):
+
+    if fen=='r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4' and whitemove:
+        return 'f3e5' #Halloween Gambit
+    
+    else:
+
+        try:
+            move = chess.polyglot.MemoryMappedReader("Performance.bin").weighted_choice(game).move()
+            return move
+        except:
+            movevaldict={}
+            bestMove = chess.Move.null()
+            maxValue = -123456
+#           print (game.legal_moves)
+            for move in game.legal_moves:
+                game.push(move)
+                boardValue = minimax(depth-1, 123456 , -123456, whitemove)
+                movevaldict.update( {boardValue:move} )
+                game.pop()
+
+            if whitemove:
+                    final_move=movevaldict.get(sorted(movevaldict)[len(movevaldict)-1])
+            else:
+                    final_move=movevaldict.get(sorted(movevaldict)[0])
+
+#           print (movevaldict)
+
+            return (final_move)
+
+
+
 k=str(input("Whose move ('W'/'B')"))
 
 if k.lower()=='w':
@@ -74,28 +105,4 @@ if k.lower()=='w':
 else:
     whitemove = False
 
-
-def play(depth):
-    try:
-        move = chess.polyglot.MemoryMappedReader("Performance.bin").weighted_choice(game).move()
-        return move
-    except:
-        movevaldict={}
-        bestMove = chess.Move.null()
-        maxValue = -123456
-#        print (game.legal_moves)
-        for move in game.legal_moves:
-            game.push(move)
-            boardValue = minimax(depth-1, 123456 , -123456, whitemove)
-            movevaldict.update( {boardValue:move} )
-            game.pop()
-
-        if whitemove:
-                final_move=movevaldict.get(sorted(movevaldict)[len(movevaldict)-1])
-        else:
-                final_move=movevaldict.get(sorted(movevaldict)[0])
-
-#        print (movevaldict)
-        return (final_move)
-
-print (play(3))
+print (play(10))
