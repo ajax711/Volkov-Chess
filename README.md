@@ -1,5 +1,5 @@
 # ajax-chess
-My shitty chess engine. 
+Volkov is my shitty chess engine. Named after a even shittier Brawlhalla character.
 
 Used basic minimax with alpha-beta pruning. 
 
